@@ -1,0 +1,99 @@
+### Регистрация пользователя
+
+POST {{base-url}}/api/register
+Content-Type: application/json
+
+{
+  "email": "user@gmail.com",
+  "password": "12345",
+  "firstName": "User",
+  "lastName": "User"
+}
+
+### Регистрация администратора
+
+POST {{base-url}}/api/register
+Content-Type: application/json
+
+{
+  "email": "admin@gmail.com",
+  "password": "12345",
+  "firstName": "Admin",
+  "lastName": "Admin"
+}
+
+### Авторизация пользователя
+
+POST {{base-url}}/api/login
+Content-Type: application/json
+
+{
+  "email": "user@gmail.com",
+  "password": "12345"
+}
+
+> {%
+    if (response.status === 200) {
+        const requestBody = JSON.parse(request.body());
+        console.log("[user] Запрос выполнен для email: " + requestBody.email);
+
+        client.global.set("token", response.body.accessToken);
+        client.global.set("refresh-token", response.body.refreshToken);
+
+        console.log("Глобальные переменные успешно сохранены.");
+    } else {
+        console.log("Ошибка авторизации. Статус:", response.status);
+        console.log(response.body)
+    }
+%}
+
+### Авторизация администратора
+
+POST {{base-url}}/api/login
+Content-Type: application/json
+
+{
+  "email": "admin@gmail.com",
+  "password": "12345"
+}
+
+> {%
+    if (response.status === 200) {
+        const requestBody = JSON.parse(request.body());
+        console.log("[user] Запрос выполнен для email: " + requestBody.email);
+
+        client.global.set("token", response.body.accessToken);
+        client.global.set("refresh-token", response.body.refreshToken);
+
+        console.log("Глобальные переменные успешно сохранены.");
+    } else {
+        console.log("Ошибка авторизации. Статус:", response.status);
+        console.log(response.body)
+    }
+%}
+
+### Рефреш токена
+
+POST {{base-url}}/api/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refresh-token}}"
+}
+
+> {%
+    if (response.status === 200) {
+        client.global.set("token", response.body.accessToken);
+        client.global.set("refresh-token", response.body.refreshToken);
+        console.log("Глобальные переменные успешно сохранены.");
+    } else {
+        console.log("Ошибка авторизации. Статус:", response.status);
+        console.log(response.body)
+    }
+%}
+
+### Валидация токена
+
+POST {{base-url}}/api/validate
+Content-Type: application/x-www-form-urlencoded
+Authorization: Bearer {{token}}
