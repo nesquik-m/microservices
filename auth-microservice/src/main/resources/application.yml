@@ -26,6 +26,19 @@ spring:
   liquibase:
     enabled: true
 
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: localhost:9093
+          auto-create-topics: false
+      bindings:
+        new-user-out-0:
+          destination: new-user
+          content-type: application/json
+          producer:
+            partition-key-expression: headers['partitionKey']
+
 app:
   jwt:
     secret: ${JWT_SECRET}

@@ -9,6 +9,7 @@ import com.example.exception.EntityNotFoundException;
 import com.example.exception.InvalidCredentialsException;
 import com.example.mapper.UserMapper;
 import com.example.repository.UserRepository;
+import com.example.messaging.KafkaSender;
 import com.example.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
 
-//    private final PasswordEncoder passwordEncoder;
+    private final KafkaSender kafkaSender;
 
     @Override
     @Transactional
@@ -33,6 +34,8 @@ public class UserServiceImpl implements UserService {
             throw new AlreadyExistsException(ErrorCode.EMAIL_ALREADY_EXISTS);
         }
         User savedUser = userRepository.save(userMapper.registrationRequestToUser(request));
+
+        kafkaSender.sendNewUserEvent(request, savedUser);
         return new RegistrationResponse("User registered successfully", savedUser.getId());
     }
 

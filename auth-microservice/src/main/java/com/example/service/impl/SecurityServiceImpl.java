@@ -19,7 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -50,7 +50,7 @@ public class SecurityServiceImpl implements SecurityService {
         return generateTokens(user.getId(), user.getRoles());
     }
 
-    private AuthResponse generateTokens(UUID id, List<Role> roles) {
+    private AuthResponse generateTokens(UUID id, Set<Role> roles) {
         String accessToken = jwtUtils.generateToken(id, tokenExpiration);
         String refreshToken = refreshTokenService.createRefreshToken(id);
         Long expiresIn = jwtUtils.getExpirationDateFromToken(accessToken);

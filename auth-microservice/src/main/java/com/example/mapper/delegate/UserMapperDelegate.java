@@ -7,7 +7,7 @@ import com.example.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.List;
+import java.util.Set;
 
 public abstract class UserMapperDelegate implements UserMapper {
 
@@ -19,7 +19,7 @@ public abstract class UserMapperDelegate implements UserMapper {
                 .email(registrationRequest.getEmail())
                 .password(passwordEncoder.encode(registrationRequest.getPassword()))
                 .isLocked(false)
-                .roles(List.of(Role.ROLE_USER))
+                .roles(Set.of(Role.ROLE_USER))
                 .build();
     }
 
