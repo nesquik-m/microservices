@@ -2,7 +2,6 @@ package com.example.security;
 
 import com.example.dto.response.ValidateTokenResponse;
 import com.example.entity.User;
-import com.example.enums.Role;
 import com.example.service.UserService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.impl.DefaultClaims;
@@ -13,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -57,7 +57,10 @@ public class JwtUtils {
             if (claims.containsKey("id")) {
                 UUID userId = UUID.fromString(claims.get("id").toString());
                 User user = userService.getUserById(userId);
-                return new ValidateTokenResponse(userId, user.getRoles());
+                Set<String> roles = user.getRoles().stream()
+                        .map(String::valueOf)
+                        .collect(Collectors.toSet());
+                return new ValidateTokenResponse(userId, roles);
             } else {
                 log.warn("JWT token doesn't contain userId: {}", token);
                 return null;

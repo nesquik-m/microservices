@@ -31,6 +31,6 @@ public class User {
     @Column(name = "roles", nullable = false)
     @Enumerated(EnumType.STRING)
     @Builder.Default
-    private List<Role> roles = new ArrayList<>();
+    private Set<Role> roles = new HashSet<>();
 
 }

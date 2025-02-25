@@ -3,8 +3,8 @@ package com.example.dto.response;
 import com.example.enums.Role;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -20,6 +20,6 @@ public class AuthResponse {
     private String refreshToken;
 
     @Builder.Default
-    private List<Role> roles = new ArrayList<>();
+    private Set<Role> roles = new HashSet<>();
 
 }
