@@ -26,4 +26,6 @@ public interface AccountService {
 
     List<AccountDto> getAccountsByFilter(AccountFilterDto accountFilterDto, Pageable pageable);
 
+    void markAccountAsOnline(UUID accountId);
+
 }

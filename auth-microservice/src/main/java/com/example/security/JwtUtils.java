@@ -2,6 +2,7 @@ package com.example.security;
 
 import com.example.dto.response.ValidateTokenResponse;
 import com.example.entity.User;
+import com.example.messaging.KafkaSender;
 import com.example.service.UserService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.impl.DefaultClaims;
@@ -23,6 +24,8 @@ public class JwtUtils {
     private String jwtSecret;
 
     private final UserService userService;
+
+    private final KafkaSender kafkaSender;
 
     public String generateToken(UUID id, Duration expiration) {
         return Jwts.builder()
@@ -60,6 +63,9 @@ public class JwtUtils {
                 Set<String> roles = user.getRoles().stream()
                         .map(String::valueOf)
                         .collect(Collectors.toSet());
+
+                kafkaSender.sendActivityEvent(userId);
+
                 return new ValidateTokenResponse(userId, roles);
             } else {
                 log.warn("JWT token doesn't contain userId: {}", token);
