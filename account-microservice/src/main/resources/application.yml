@@ -28,7 +28,7 @@ spring:
 
   cloud:
     function:
-      definition: user
+      definition: user;activity
     stream:
       kafka:
         binder:
@@ -43,3 +43,14 @@ spring:
           consumer:
             start-offset: latest
             concurrency: 2
+        activity-in-0:
+          destination: activity
+          content-type: application/json
+          group: account-microservice-group
+          consumer:
+            start-offset: latest
+            concurrency: 2
+app:
+  scheduled:
+    interval-in-cron: "*/30 * * * * ?"
+    cutoff-time: 2

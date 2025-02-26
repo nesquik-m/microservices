@@ -38,6 +38,11 @@ spring:
           content-type: application/json
           producer:
             partition-key-expression: headers['partitionKey']
+        activity-out-0:
+          destination: activity
+          content-type: application/json
+          producer:
+            partition-key-expression: headers['partitionKey']
 
 app:
   jwt:

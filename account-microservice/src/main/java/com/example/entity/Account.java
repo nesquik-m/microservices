@@ -42,6 +42,12 @@ public class Account {
 
     private String about;
 
+    @Column(name = "online", nullable = false)
+    private Boolean isOnline;
+
+    @Column(name = "last_online_time")
+    private LocalDateTime lastOnlineTime;
+
     @CreationTimestamp
     private LocalDateTime createdOn;
 

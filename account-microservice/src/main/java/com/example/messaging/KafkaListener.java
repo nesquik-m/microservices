@@ -1,5 +1,6 @@
 package com.example.messaging;
 
+import com.example.dto.kafka.ActivityEvent;
 import com.example.dto.kafka.NewUserEvent;
 import com.example.mapper.AccountMapper;
 import com.example.service.AccountService;
@@ -31,6 +32,18 @@ public class KafkaListener {
                     messageHeaders.get(KafkaHeaders.RECEIVED_TOPIC, String.class),
                     newUser);
             accountService.createAccount(accountMapper.newUserEventToAccount(newUser));
+        };
+    }
+
+    @Bean
+    Consumer<Message<ActivityEvent>> activity() {
+        return message -> {
+            ActivityEvent activityEvent = message.getPayload();
+            MessageHeaders messageHeaders = message.getHeaders();
+            log.info("Received a message, topic: {}, payload: {}",
+                    messageHeaders.get(KafkaHeaders.RECEIVED_TOPIC, String.class),
+                    activityEvent);
+            accountService.markAccountAsOnline(activityEvent.getId());
         };
     }
 

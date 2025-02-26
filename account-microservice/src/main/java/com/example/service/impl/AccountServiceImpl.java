@@ -14,10 +14,14 @@ import com.example.security.SecurityUtils;
 import com.example.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,6 +29,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class AccountServiceImpl implements AccountService {
+
+    @Value("${app.scheduled.cutoff-time}")
+    private int cutoffTime;
 
     private final AccountRepository accountRepository;
 
@@ -87,6 +94,20 @@ public class AccountServiceImpl implements AccountService {
                 .findAll(AccountSpecification.withFilter(accountSearchDto), pageable)
                 .getContent();
         return accountMapper.accountListToAccountDtoList(all);
+    }
+
+    @Override
+    public void markAccountAsOnline(UUID accountId) {
+        accountRepository.markAccountAsOnline(accountId);
+    }
+
+    @Scheduled(cron = "${app.scheduled.interval-in-cron}")
+    private void markAccountAsOffline() {
+        try {
+            accountRepository.updateOfflineStatus(LocalDateTime.now().minusMinutes(cutoffTime));
+        } catch (InvalidDataAccessApiUsageException e) {
+            log.error("Error updating offline status: {}", e.getMessage(), e);
+        }
     }
 
 }
