@@ -1,3 +1,5 @@
+# ========================[AUTH]==================================================
+
 ### Регистрация пользователя
 
 POST {{base-url}}/api/v1/auth/register
@@ -102,18 +104,18 @@ Authorization: Bearer {{token}}
 
 ### Получить инфо о текущем аккаунте
 
-GET http://localhost:8083/api/v1/account/me
+GET {{base-url}}/api/v1/account/me
 Authorization: Bearer {{token}}
 
 ### Получить аккаунт по id
 
 @id = 790e4719-9b2c-49e3-85e8-f45cd8c1c9eb
-GET http://localhost:8083/api/v1/account/{{id}}
+GET {{base-url}}/api/v1/account/{{id}}
 Authorization: Bearer {{token}}
 
 ### Обновление аккаунта
 
-PUT http://localhost:8083/api/v1/account/me
+PUT {{base-url}}/api/v1/account/me
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
@@ -129,7 +131,7 @@ Authorization: Bearer {{token}}
 
 ### Пагинированный список аккаунтов
 
-GET http://localhost:8083/api/v1/account/accounts?
+GET {{base-url}}/api/v1/account/accounts?
     offset=0&
     limit=5
 Content-Type: application/json
@@ -137,7 +139,7 @@ Authorization: Bearer {{token}}
 
 ### Пагинированный список ids аккаунтов
 
-GET http://localhost:8083/api/v1/account/ids?
+GET {{base-url}}/api/v1/account/ids?
     offset=0&
     limit=10
 Content-Type: application/json
@@ -145,7 +147,7 @@ Authorization: Bearer {{token}}
 
 ### Поиск аккаунтов по фильтру - 1
 
-GET http://localhost:8083//api/v1/account/filter?
+GET {{base-url}}/api/v1/account/filter?
     ids=4a499b8d-5dde-4363-ba2e-12ffff0ef08f&
     firstName=иван&
     lastName=иванов&
@@ -160,7 +162,7 @@ Authorization: Bearer {{token}}
 
 ### Поиск аккаунтов по фильтру - 2
 
-GET http://localhost:8083//api/v1/account/filter?
+GET {{base-url}}/api/v1/account/filter?
     ids=4a499b8d-5dde-4363-ba2e-12ffff0ef08f&
     ids=e086deb9-b18e-489b-bcfb-aa6541cc6fb5&
     offset=0&
@@ -170,7 +172,7 @@ Authorization: Bearer {{token}}
 
 ### Поиск аккаунтов по фильтру - 3
 
-GET http://localhost:8083//api/v1/account/filter?
+GET {{base-url}}/api/v1/account/filter?
     firstName=useR&
     offset=0&
     limit=10
