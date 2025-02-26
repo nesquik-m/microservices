@@ -102,7 +102,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Scheduled(cron = "${app.scheduled.interval-in-cron}")
-    private void markAccountAsOffline() {
+    public void markAccountAsOffline() {
         try {
             accountRepository.updateOfflineStatus(LocalDateTime.now().minusMinutes(cutoffTime));
         } catch (InvalidDataAccessApiUsageException e) {
