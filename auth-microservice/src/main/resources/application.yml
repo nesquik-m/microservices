@@ -1,0 +1,57 @@
+server:
+  port: 0
+
+spring:
+  application:
+    name: auth-microservice
+
+  datasource:
+    url: ${AUTH_DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+    hikari:
+      schema: auth_schema
+      connection-init-sql: CREATE SCHEMA IF NOT EXISTS auth_schema
+      connection-timeout: 10000
+
+  jpa:
+    properties:
+      hibernate:
+        show_sql: false
+        hbm2ddl:
+          auto: none
+    hibernate:
+      ddl-auto: none
+
+  liquibase:
+    enabled: true
+
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: localhost:9093
+          auto-create-topics: false
+      bindings:
+        new-user-out-0:
+          destination: new-user
+          content-type: application/json
+          producer:
+            partition-key-expression: headers['partitionKey']
+        activity-out-0:
+          destination: activity
+          content-type: application/json
+          producer:
+            partition-key-expression: headers['partitionKey']
+
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+    tokenExpiration: 10h
+    refreshTokenExpiration: 24h
+
+eureka:
+  client:
+    enabled: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
