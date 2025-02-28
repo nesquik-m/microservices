@@ -1,4 +1,122 @@
 services:
+  discovery:
+    restart: always
+    container_name: discovery
+    build:
+      context: ./discovery
+      dockerfile: Dockerfile
+    ports:
+      - "8761:8761"
+    networks:
+      - microservices-network
+
+  gateway:
+    restart: always
+    container_name: gateway
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    ports:
+      - "9090:9090"
+    depends_on:
+      - discovery
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery:8761/eureka
+    networks:
+      - microservices-network
+
+  auth-microservice:
+    restart: always
+    container_name: auth-microservice
+    build:
+      context: ./auth-microservice
+      dockerfile: Dockerfile
+    depends_on:
+      - discovery
+      - redis
+      - kafka
+      - postgres
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery:8761/eureka
+      AUTH_DATABASE_URL: jdbc:postgresql://postgres:5432/auth-microservice
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: postgres
+      JWT_SECRET: SomeSecretKey
+    networks:
+      - microservices-network
+
+  account-microservice:
+    container_name: account-microservice
+    build:
+      context: ./account-microservice
+      dockerfile: Dockerfile
+    depends_on:
+      - discovery
+      - kafka
+      - postgres
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery:8761/eureka
+      ACCOUNT_DATABASE_URL: jdbc:postgresql://postgres:5432/account-microservice
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: postgres
+    networks:
+      - microservices-network
+
+  redis:
+    restart: always
+    image: mirror.gcr.io/redis
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - microservices-network
+
+  zookeeper:
+    restart: always
+    image: confluentinc/cp-zookeeper:7.5.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - microservices-network
+
+  kafka:
+    restart: always
+    image: confluentinc/cp-kafka:7.5.0
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: INSIDE://0.0.0.0:9092,OUTSIDE://0.0.0.0:9093
+#      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9092,OUTSIDE://localhost:9093
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9092,OUTSIDE://host.docker.internal:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENER_NAME_REPLICATION_FACTOR: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    networks:
+      - microservices-network
+
+  kafka-u:
+    restart: always
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-u
+    depends_on:
+      - kafka
+    ports:
+      - "8081:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+    networks:
+      - microservices-network
 
   postgres:
     image: postgres:17.2
@@ -10,20 +128,14 @@ services:
     ports:
       - "5434:5432"
     volumes:
-      - ./data/postgres:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
     networks:
-      - microservices
+      - microservices-network
 
-  redis:
-    restart: always
-    image: mirror.gcr.io/redis
-    container_name: redis-microservices
-    ports:
-      - "6379:6379"
-    networks:
-      - microservices
+volumes:
+  postgres_data:
 
 networks:
-  microservices:
+  microservices-network:
     driver: bridge
