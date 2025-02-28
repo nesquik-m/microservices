@@ -3,43 +3,73 @@ package com.example.mapper;
 import com.example.dto.AccountDto;
 import com.example.dto.kafka.NewUserEvent;
 import com.example.entity.Account;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.ReportingPolicy;
+import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
-public interface AccountMapper {
+@Component
+public class AccountMapper {
 
-    @Mapping(source = "id", target = "id")
-    @Mapping(source = "email", target = "email")
-    @Mapping(source = "firstName", target = "firstName")
-    @Mapping(source = "lastName", target = "lastName")
-    Account newUserEventToAccount(NewUserEvent newUserEvent);
+    public Account newUserEventToAccount(NewUserEvent newUserEvent) {
+        if (newUserEvent == null) {
+            return null;
+        }
+        
+        return Account.builder()
+                .id(newUserEvent.getId())
+                .email(newUserEvent.getEmail())
+                .firstName(newUserEvent.getFirstName())
+                .lastName(newUserEvent.getLastName())
+                .isOnline(true)
+                .lastOnlineTime(LocalDateTime.now())
+                .build();
+    }
 
-    @Mapping(source = "id", target = "id")
-    @Mapping(source = "email", target = "email")
-    @Mapping(source = "firstName", target = "firstName")
-    @Mapping(source = "lastName", target = "lastName")
-    @Mapping(source = "phone", target = "phone")
-    @Mapping(source = "city", target = "city")
-    @Mapping(source = "country", target = "country")
-    @Mapping(source = "birthDate", target = "birthDate")
-    @Mapping(source = "about", target = "about")
-    @Mapping(source = "createdOn", target = "createdOn")
-    @Mapping(source = "updatedOn", target = "updatedOn")
-    AccountDto accountToAccountDto(Account account);
 
-    @Mapping(source = "firstName", target = "firstName")
-    @Mapping(source = "lastName", target = "lastName")
-    @Mapping(source = "phone", target = "phone")
-    @Mapping(source = "city", target = "city")
-    @Mapping(source = "country", target = "country")
-    @Mapping(source = "birthDate", target = "birthDate")
-    @Mapping(source = "about", target = "about")
-    Account accountDtoToAccount(AccountDto accountDto);
+    public AccountDto accountToAccountDto(Account account) {
+        if (account == null) {
+            return null;
+        }
 
-    List<AccountDto> accountListToAccountDtoList(List<Account> accounts);
+        return AccountDto.builder()
+                .id(account.getId())
+                .email(account.getEmail())
+                .firstName(account.getFirstName())
+                .lastName(account.getLastName())
+                .phone(account.getPhone())
+                .city(account.getCity())
+                .country(account.getCountry())
+                .birthDate(account.getBirthDate())
+                .about(account.getAbout())
+                .createdOn(account.getCreatedOn())
+                .updatedOn(account.getUpdatedOn())
+                .build();
+    }
+
+
+    public Account accountDtoToAccount(AccountDto accountDto) {
+        if (accountDto == null) {
+            return null;
+        }
+
+        return Account.builder()
+                .firstName(accountDto.getFirstName())
+                .lastName(accountDto.getLastName())
+                .phone(accountDto.getPhone())
+                .city(accountDto.getCity())
+                .country(accountDto.getCountry())
+                .birthDate(accountDto.getBirthDate())
+                .about(accountDto.getAbout())
+                .id(accountDto.getId())
+                .email(accountDto.getEmail())
+                .build();
+    }
+
+    public List<AccountDto> accountListToAccountDtoList(List<Account> accounts) {
+        return accounts.stream()
+                .map(this::accountToAccountDto)
+                .toList();
+    }
 
 }

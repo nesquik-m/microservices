@@ -9,6 +9,7 @@ import com.example.enums.ErrorCode;
 import com.example.enums.Role;
 import com.example.exception.InvalidCredentialsException;
 import com.example.exception.RefreshTokenException;
+import com.example.messaging.KafkaSender;
 import com.example.security.JwtUtils;
 import com.example.service.RefreshTokenService;
 import com.example.service.SecurityService;
@@ -34,6 +35,8 @@ public class SecurityServiceImpl implements SecurityService {
 
     private final JwtUtils jwtUtils;
 
+    private final KafkaSender kafkaSender;
+
     @Value("${app.jwt.tokenExpiration}")
     private Duration tokenExpiration;
 
@@ -47,6 +50,7 @@ public class SecurityServiceImpl implements SecurityService {
             throw new InvalidCredentialsException(ErrorCode.INVALID_CREDENTIALS);
         }
 
+        kafkaSender.sendActivityEvent(user.getId());
         return generateTokens(user.getId(), user.getRoles());
     }
 
